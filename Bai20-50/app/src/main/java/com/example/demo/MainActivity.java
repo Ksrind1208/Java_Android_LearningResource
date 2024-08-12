@@ -8,6 +8,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -50,10 +51,16 @@ public class MainActivity extends AppCompatActivity {
 //    Button btn;
 //    int indexCLicked=-1;
 
-    ListView lvTraiCay;
-    ArrayList<TraiCay> arrayTraiCay;
-    TraiCayAdapter adapter;
+//    ListView lvTraiCay;
+//    ArrayList<TraiCay> arrayTraiCay;
+//    TraiCayAdapter adapter;
 
+//    GridView gvTen;
+//    String[] arrayName = {
+//            "A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
+//            "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",
+//            "U", "V", "W", "X", "Y", "Z"
+//    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -206,14 +213,19 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        });
 
-        lvTraiCay=(ListView) findViewById(R.id.listviewTraiCay);
-        arrayTraiCay=new ArrayList<>();
-        arrayTraiCay.add(new TraiCay("Earth","Trái đất",R.drawable.earth));
-        arrayTraiCay.add(new TraiCay("Jupiter","Sao mộc",R.drawable.jupiter));
-        arrayTraiCay.add(new TraiCay("Mars","Sao hảo",R.drawable.mars));
-        arrayTraiCay.add(new TraiCay("Neptune","Sao thủy",R.drawable.neptune));
+//        lvTraiCay=(ListView) findViewById(R.id.listviewTraiCay);
+//        arrayTraiCay=new ArrayList<>();
+//        arrayTraiCay.add(new TraiCay("Earth","Trái đất",R.drawable.earth));
+//        arrayTraiCay.add(new TraiCay("Jupiter","Sao mộc",R.drawable.jupiter));
+//        arrayTraiCay.add(new TraiCay("Mars","Sao hảo",R.drawable.mars));
+//        arrayTraiCay.add(new TraiCay("Neptune","Sao thủy",R.drawable.neptune));
+//
+//        adapter=new TraiCayAdapter(this,R.layout.dong_trai_cay,arrayTraiCay);
+//        lvTraiCay.setAdapter(adapter);
 
-        adapter=new TraiCayAdapter(this,R.layout.dong_trai_cay,arrayTraiCay);
-        lvTraiCay.setAdapter(adapter);
+//        gvTen=(GridView) findViewById(R.id.gridviewTen);
+//        ArrayAdapter adapter=new ArrayAdapter(MainActivity.this, android.R.layout.simple_list_item_1,arrayName);
+//        gvTen.setAdapter(adapter);
+
     }
 }
