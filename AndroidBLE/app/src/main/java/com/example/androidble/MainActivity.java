@@ -15,6 +15,7 @@ import android.bluetooth.le.ScanResult;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private Button buttonDisconnect;
     private Button buttonConnect;
     private BluetoothDevice deviceToConnect;
-
+    private boolean flagConnect=false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,10 +68,29 @@ public class MainActivity extends AppCompatActivity {
         buttonConnect = findViewById(R.id.buttonConnect);
 
         checkPermissions();
-
-        buttonScan.setOnClickListener(v -> scanForDevices());
+        buttonScan.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(flagConnect==false){
+                    scanForDevices();
+                    flagConnect=true;
+                }else{
+                    disconnectFromDevice();
+                    deviceToConnect=null;
+                    scanForDevices();
+                }
+            }
+        });
         buttonConnect.setOnClickListener(v -> connectToDevice());
-        buttonDisconnect.setOnClickListener(v -> disconnectFromDevice());
+        buttonDisconnect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                textServiceUUID.setText("");
+                textCharacteristicUUID.setText("");
+                textContent.setText("");
+                disconnectFromDevice();
+            }
+        });
     }
 
     private void checkPermissions() {
