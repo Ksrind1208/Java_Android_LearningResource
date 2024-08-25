@@ -9,6 +9,7 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
+import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
 import android.content.pm.PackageManager;
@@ -33,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_BLUETOOTH_SCAN_PERMISSION = 2;
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothGatt bluetoothGatt;
+    private BluetoothLeScanner bluetoothLeScanner;
+    private ScanCallback scanCallback;
     private TextView textServiceUUID;
     private TextView textCharacteristicUUID;
     private TextView textContent;
@@ -102,7 +105,16 @@ public class MainActivity extends AppCompatActivity {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED &&
                     ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
 
-                bluetoothAdapter.getBluetoothLeScanner().startScan(new ScanCallback() {
+                if (bluetoothLeScanner == null) {
+                    bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
+                }
+
+                // Stop any ongoing scan
+                if (scanCallback != null) {
+                    bluetoothLeScanner.stopScan(scanCallback);
+                }
+
+                scanCallback = new ScanCallback() {
                     @Override
                     public void onScanResult(int callbackType, ScanResult result) {
                         super.onScanResult(callbackType, result);
@@ -110,14 +122,13 @@ public class MainActivity extends AppCompatActivity {
                         if (deviceToConnect == null) {
                             deviceToConnect = device;
                             Toast.makeText(MainActivity.this, "Device found: " + device.getAddress(), Toast.LENGTH_SHORT).show();
-                            connectToDevice();
                         }
                     }
 
                     @Override
                     public void onBatchScanResults(List<ScanResult> results) {
                         super.onBatchScanResults(results);
-                        // Xử lý khi có nhiều kết quả quét
+                        // Handle batch scan results if needed
                     }
 
                     @Override
@@ -125,7 +136,9 @@ public class MainActivity extends AppCompatActivity {
                         super.onScanFailed(errorCode);
                         Toast.makeText(MainActivity.this, "Scan failed with error code: " + errorCode, Toast.LENGTH_SHORT).show();
                     }
-                });
+                };
+
+                bluetoothLeScanner.startScan(scanCallback);
             } else {
                 Toast.makeText(this, "Permissions required to scan for BLE devices.", Toast.LENGTH_SHORT).show();
             }
