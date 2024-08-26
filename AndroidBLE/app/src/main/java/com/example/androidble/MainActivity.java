@@ -28,6 +28,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -36,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothGatt bluetoothGatt;
     private BluetoothLeScanner bluetoothLeScanner;
+    private List<BluetoothGattCharacteristic>  characteristics;
     private ScanCallback scanCallback;
     private TextView textServiceUUID;
     private TextView textCharacteristicUUID;
@@ -43,8 +45,11 @@ public class MainActivity extends AppCompatActivity {
     private Button buttonScan;
     private Button buttonDisconnect;
     private Button buttonConnect;
+    private Button buttonOn;
+    private Button buttonOff;
     private BluetoothDevice deviceToConnect;
     private boolean flagConnect=false;
+    private ArrayList<BluetoothDevice> arrayListDevice=new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,18 +71,27 @@ public class MainActivity extends AppCompatActivity {
         buttonScan = findViewById(R.id.buttonScan);
         buttonDisconnect = findViewById(R.id.buttonDisconnect);
         buttonConnect = findViewById(R.id.buttonConnect);
-
+        buttonOn=findViewById(R.id.buttonOn);
+        buttonOff=findViewById(R.id.buttonOff);
         checkPermissions();
         buttonScan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(flagConnect==false){
+                    arrayListDevice.clear();
                     scanForDevices();
                     flagConnect=true;
+                    for(BluetoothDevice device:arrayListDevice){
+                        Log.e("Device: ",device.getName());
+                    }
                 }else{
+                    arrayListDevice.clear();
                     disconnectFromDevice();
                     deviceToConnect=null;
                     scanForDevices();
+                    for(BluetoothDevice device:arrayListDevice){
+                        Log.e("Device: ",device.getName());
+                    }
                 }
             }
         });
@@ -91,6 +105,41 @@ public class MainActivity extends AppCompatActivity {
                 disconnectFromDevice();
             }
         });
+        buttonOn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (bluetoothGatt != null && characteristics != null) {
+                    characteristics.get(0).setValue("ON");
+                    if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
+                        bluetoothGatt.writeCharacteristic(characteristics.get(0));
+                        textContent.setText("ON");
+
+                    } else {
+                        Toast.makeText(MainActivity.this, "Bluetooth Connect permission required", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(MainActivity.this, "Characteristic not found", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        buttonOff.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (bluetoothGatt != null && characteristics != null) {
+                    characteristics.get(0).setValue("OFF");
+                    if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
+                        bluetoothGatt.writeCharacteristic(characteristics.get(0));
+                        textContent.setText("OFF");
+                    } else {
+                        Toast.makeText(MainActivity.this, "Bluetooth Connect permission required", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(MainActivity.this, "Characteristic not found", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
     }
 
     private void checkPermissions() {
@@ -139,9 +188,11 @@ public class MainActivity extends AppCompatActivity {
                     public void onScanResult(int callbackType, ScanResult result) {
                         super.onScanResult(callbackType, result);
                         BluetoothDevice device = result.getDevice();
-                        if (deviceToConnect == null) {
-                            deviceToConnect = device;
-                            Toast.makeText(MainActivity.this, "Device found: " + device.getAddress(), Toast.LENGTH_SHORT).show();
+                        if (!arrayListDevice.contains(device) && device.getName()!=null) {
+                            deviceToConnect=device;
+                            arrayListDevice.add(device);
+                            Log.e("Device found: ", device.toString());
+                            Toast.makeText(MainActivity.this, "Device found: " + device.getName(), Toast.LENGTH_SHORT).show();
                         }
                     }
 
@@ -203,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
                                     BluetoothGattService service = services.get(2); // Select the first service
                                     textServiceUUID.setText("Service UUID: " + service.getUuid().toString());
 
-                                    List<BluetoothGattCharacteristic> characteristics = service.getCharacteristics();
+                                    characteristics = service.getCharacteristics();
                                     if (!characteristics.isEmpty()) {
                                         for (BluetoothGattCharacteristic characteristic : characteristics) {
                                             Log.e("BLE", "Characteristic UUID: " + characteristic.getUuid().toString());
@@ -214,6 +265,8 @@ public class MainActivity extends AppCompatActivity {
 
                                         // Check permission before calling readCharacteristic
                                         if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
+                                            bluetoothGatt.setCharacteristicNotification(characteristic, true);
+                                            // Read the initial value
                                             bluetoothGatt.readCharacteristic(characteristic); // Read the value of the characteristic
                                         } else {
                                             Toast.makeText(MainActivity.this, "Bluetooth Connect permission required", Toast.LENGTH_SHORT).show();
@@ -238,10 +291,18 @@ public class MainActivity extends AppCompatActivity {
                             runOnUiThread(() -> {
                                 String content = new String(characteristic.getValue());
                                 textContent.setText("Content: " + content);
+//                                updateTextContent(characteristic);
                             });
                         } else {
                             runOnUiThread(() -> Toast.makeText(MainActivity.this, "Failed to read characteristic", Toast.LENGTH_SHORT).show());
                         }
+                    }
+                    @Override
+                    public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+                        super.onCharacteristicChanged(gatt, characteristic);
+                        String content = new String(characteristic.getValue());
+                        textContent.setText("Content: " + content);
+//                        updateTextContent(characteristic);
                     }
                 });
             } else {
@@ -270,5 +331,11 @@ public class MainActivity extends AppCompatActivity {
         } catch (SecurityException e) {
             Toast.makeText(this, "Permission denied: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
+    }
+    private void updateTextContent(BluetoothGattCharacteristic characteristic) {
+        runOnUiThread(() -> {
+            String content = new String(characteristic.getValue());
+            textContent.setText("Content: " + content);
+        });
     }
 }
