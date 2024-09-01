@@ -221,7 +221,7 @@ public class MainActivity extends AppCompatActivity {
     private void connectToDevice() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
             if (deviceToConnect != null) {
-                bluetoothGatt = deviceToConnect.connectGatt(this, false, new BluetoothGattCallback() {
+                bluetoothGatt = arrayListDevice.get(0).connectGatt(this, false, new BluetoothGattCallback() {
                     @Override
                     public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
                         super.onConnectionStateChange(gatt, status, newState);
