@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "791269983469",
+    "firebase_url": "https://esp32-first-6425d-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "esp32-first-6425d",
+    "storage_bucket": "esp32-first-6425d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:791269983469:android:4a2a2145ad04f6fc29b8e4",
+        "android_client_info": {
+          "package_name": "com.example.androidfirebase"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCTAsCUnEe2KTHYzDtmp2DQGZLfnwFQpis"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
