@@ -48,6 +48,6 @@
         app:itemIconPadding="30dp"
         app:menu="@menu/drawer_items"
         app:headerLayout="@layout/drawer_header"
-        android:layout_gravity="start"/>
+        android:layout_gravity="start" />
 
 </androidx.drawerlayout.widget.DrawerLayout>
